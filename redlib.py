@@ -20,12 +20,10 @@ class Cas:
     def get_response(self):
         connection = self.connection
         try:
-
+            connection.write(Cas.QUERY_SEQUENCE)
             result = connection.readline()
-            while result:
-                if len(result) == 22:
-                    return result[0:2] + result[11:21]
-                result = connection.readline()
+            if(result):
+                return result[0:2] + result[11:21]
             else:
                 return EMPTY_PORT_ERROR
         except serial.serialutil.SerialException:
@@ -35,7 +33,7 @@ class Cas:
 class ControlScales:
     BAUD_RATE = 9600
     READ_TIMEOUT = 0.05
-    QEURY_SEQUENCE = '\x02B\x03'.encode('ascii')
+    QUERY_SEQUENCE = '\x02B\x03'.encode('ascii')
 
     def __init__(self, port_name):
         connection = serial.Serial(port_name)
@@ -46,8 +44,10 @@ class ControlScales:
     def get_response(self):
         connection = self.connection
         try:
-            if connection.readline():
-                return connection.readline()[1:12]
+            connection.write(ControlScales.QUERY_SEQUENCE)
+            result = connection.readline()
+            if result:
+                return result[1:12]
             else:
                 return EMPTY_PORT_ERROR
         except serial.serialutil.SerialException:
@@ -75,7 +75,7 @@ class Discoverer:
                     devices['cas'] = port
                     continue
                 else:
-                    connection.write(ControlScales.QEURY_SEQUENCE)
+                    connection.write(ControlScales.QUERY_SEQUENCE)
                     response = connection.readline()
                     if response and b'(kg)' in response:
                         devices['bdu'] = port
