@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 import serial
-import time
 from serial.tools import list_ports
 EMPTY_PORT_ERROR = '!port is empty'
 UNAVAILABLE_PORT_ERROR = '!port is empty'
@@ -23,7 +22,7 @@ class Cas:
             connection.write(Cas.QUERY_SEQUENCE)
             result = connection.readline()
             if(result):
-                return result[0:2] + result[11:21]
+                return result[0:2] + result[11:20]
             else:
                 return EMPTY_PORT_ERROR
         except serial.serialutil.SerialException:
@@ -47,7 +46,7 @@ class ControlScales:
             connection.write(ControlScales.QUERY_SEQUENCE)
             result = connection.readline()
             if result:
-                return result[1:12]
+                return result[4:15]
             else:
                 return EMPTY_PORT_ERROR
         except serial.serialutil.SerialException:

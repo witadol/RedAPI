@@ -1,8 +1,17 @@
 #! /usr/bin/env python3
-from redlib import Cas
+import sys
+from redlib import ControlScales
 PORT_NAME = '/dev/ttyS1'
 
 
-cas = Cas(PORT_NAME)
-while True:
-    print(cas.get_response())
+def getResponse(port_name):
+    bdu = ControlScales(port_name)
+    print(bdu.get_response().decode())
+
+
+
+if len(sys.argv) > 1:
+    port_name = sys.argv[1]
+    getResponse(port_name)
+else:
+    print("Please, select name of interface")

@@ -10,7 +10,6 @@ def readCas():
     ser.stopbits = serial.STOPBITS_ONE
     ser.timeout = 0.09
     while True:
-        ser.
         ser.write('\x00'.encode())
         print(ser.readline())
 
