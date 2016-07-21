@@ -1,27 +1,44 @@
 #! /usr/bin/env python3
 import serial
 from serial.tools import list_ports
+from abc import ABCMeta, abstractmethod
 EMPTY_PORT_ERROR = '!port is empty'
 UNAVAILABLE_PORT_ERROR = '!port is empty'
 
 
-class Cas:
+class Scales(metaclass=ABCMeta):
+
+    def __init__(self, port_name):
+        connection = serial.Serial(port_name)
+        connection.baudrate = self.BAUD_RATE
+        connection.timeout = self.READ_TIMEOUT
+        self.connection = connection
+
+    @abstractmethod
+    def get_query_sequence(self):
+        pass
+
+    def get_response(self):
+        connection = self.connection
+        connection.write(self.get_query_sequence())
+        return connection.readline()
+
+
+class Cas(Scales):
     BAUD_RATE = 9600
     READ_TIMEOUT = 0.085
     QUERY_SEQUENCE = '\x00'.encode()
 
     def __init__(self, port_name):
-        connection = serial.Serial(port_name)
-        connection.baudrate = Cas.BAUD_RATE
-        connection.timeout = Cas.READ_TIMEOUT
-        self.connection = connection
+        super().__init__(port_name)
 
-    def get_response(self):
-        connection = self.connection
+    def get_query_sequence(self):
+        return self.QUERY_SEQUENCE
+
+    def get_formatted_response(self):
         try:
-            connection.write(Cas.QUERY_SEQUENCE)
-            result = connection.readline()
-            if(result):
+            result = self.get_response()
+            if result:
                 return result[0:2] + result[11:20]
             else:
                 return EMPTY_PORT_ERROR
@@ -29,22 +46,20 @@ class Cas:
             return UNAVAILABLE_PORT_ERROR
 
 
-class ControlScales:
+class ControlScales(Scales):
     BAUD_RATE = 9600
     READ_TIMEOUT = 0.05
     QUERY_SEQUENCE = '\x02B\x03'.encode('ascii')
 
     def __init__(self, port_name):
-        connection = serial.Serial(port_name)
-        connection.baudrate = Cas.BAUD_RATE
-        connection.timeout = Cas.READ_TIMEOUT
-        self.connection = connection
+        super().__init__(port_name)
 
-    def get_response(self):
-        connection = self.connection
+    def get_query_sequence(self):
+        return self.QUERY_SEQUENCE
+
+    def get_formatted_response(self):
         try:
-            connection.write(ControlScales.QUERY_SEQUENCE)
-            result = connection.readline()
+            result = self.get_response()
             if result:
                 return result[4:15]
             else:
@@ -65,18 +80,12 @@ class Discoverer:
         for port in Discoverer.get_available_ports():
             print("Curr port "+port)
             try:
-                connection = serial.Serial(port)
-                connection.baudrate = 9600
-                connection.timeout = 0.1
-
-                connection.write(Cas.QUERY_SEQUENCE)
-                response = connection.readline()
+                response = Cas(port).get_response()
                 if response and b'g' in response:
                     devices['cas'] = port
                     continue
                 else:
-                    connection.write(ControlScales.QUERY_SEQUENCE)
-                    response = connection.readline()
+                    response = ControlScales(port).get_response()
                     if response and b'(kg)' in response:
                         devices['bdu'] = port
                         continue

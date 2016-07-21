@@ -6,7 +6,7 @@ PORT_NAME = '/dev/ttyS1'
 
 def getResponse(port_name):
     bdu = ControlScales(port_name)
-    print(bdu.get_response().decode())
+    print(bdu.get_formated_response().decode())
 
 
 

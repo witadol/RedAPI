@@ -5,7 +5,7 @@ PORT_NAME = '/dev/ttyS0'
 
 def getResponse(port_name):
     cas = Cas(port_name)
-    print(cas.get_response().decode())
+    print(cas.get_formatted_response().decode())
 
 # getResponse(PORT_NAME)
 
