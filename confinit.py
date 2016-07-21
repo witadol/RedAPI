@@ -1,9 +1,13 @@
 #! /usr/bin/env python3
 import configparser
+import os
 from redlib import Discoverer
+
 CONFIG_FILE = 'config.ini'
+script_directory = os.path.dirname(__file__)
+path_to_file = os.path.join(script_directory, CONFIG_FILE)
 
 config = configparser.ConfigParser()
 config['PORTS'] = Discoverer.get_available_devices()
-with open(CONFIG_FILE, 'w') as configfile:
+with open(path_to_file, 'w') as configfile:
     config.write(configfile)
