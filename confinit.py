@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import configparser
 from redlib import Discoverer
 CONFIG_FILE = 'config.ini'
