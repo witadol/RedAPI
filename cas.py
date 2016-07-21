@@ -12,6 +12,6 @@ def getResponse(port_name):
 
 if len(sys.argv) > 1:
     port_name = sys.argv[1]
-
+    getResponse(port_name)
 else:
     print("Please, select name of interface")
