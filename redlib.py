@@ -63,6 +63,7 @@ class Discoverer:
         devices = {}
 
         for port in Discoverer.get_available_ports():
+            print("Curr port "+port)
             try:
                 connection = serial.Serial(port)
                 connection.baudrate = 9600
@@ -88,5 +89,5 @@ class Discoverer:
 
 if __name__ == '__main__':
 
-#    print(Discoverer.get_available_ports())
+    print(Discoverer.get_available_ports())
     print(Discoverer.get_available_devices())
