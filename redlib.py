@@ -6,7 +6,7 @@ EMPTY_PORT_ERROR = '!port is empty'
 UNAVAILABLE_PORT_ERROR = '!port is empty'
 
 
-class Scales(metaclass=ABCMeta):
+class SerialDevice(metaclass=ABCMeta):
 
     def __init__(self, port_name):
         connection = serial.Serial(port_name)
@@ -24,44 +24,46 @@ class Scales(metaclass=ABCMeta):
         return connection.readline()
 
 
-class Cas(Scales):
+class Cas(SerialDevice):
     BAUD_RATE = 9600
     READ_TIMEOUT = 0.085
     QUERY_SEQUENCE = '\x00'.encode()
 
     def __init__(self, port_name):
-        super().__init__(port_name)
+        self.port_name = port_name
 
     def get_query_sequence(self):
         return self.QUERY_SEQUENCE
 
     def get_formatted_response(self):
         try:
+            super().__init__(self.port_name)
             result = self.get_response()
             if result:
-                return result[0:2] + result[11:20]
+                return (result[0:2] + result[11:20]).decode()
             else:
                 return EMPTY_PORT_ERROR
         except serial.serialutil.SerialException:
             return UNAVAILABLE_PORT_ERROR
 
 
-class ControlScales(Scales):
+class ControlScales(SerialDevice):
     BAUD_RATE = 9600
     READ_TIMEOUT = 0.05
     QUERY_SEQUENCE = '\x02B\x03'.encode('ascii')
 
     def __init__(self, port_name):
-        super().__init__(port_name)
+        self.port_name = port_name
 
     def get_query_sequence(self):
         return self.QUERY_SEQUENCE
 
     def get_formatted_response(self):
         try:
+            super().__init__(self.port_name)
             result = self.get_response()
             if result:
-                return result[4:15]
+                return result[4:15].decode()
             else:
                 return EMPTY_PORT_ERROR
         except serial.serialutil.SerialException:

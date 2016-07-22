@@ -3,15 +3,13 @@ import sys
 from redlib import Cas
 PORT_NAME = '/dev/ttyS0'
 
-def getResponse(port_name):
+
+def get_response(port_name):
     cas = Cas(port_name)
-    print(cas.get_formatted_response().decode())
-
-# getResponse(PORT_NAME)
-
+    print(cas.get_formatted_response())
 
 if len(sys.argv) > 1:
     port_name = sys.argv[1]
-    getResponse(port_name)
+    get_response(port_name)
 else:
     print("Please, select name of interface")

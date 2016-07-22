@@ -4,14 +4,13 @@ from redlib import ControlScales
 PORT_NAME = '/dev/ttyS1'
 
 
-def getResponse(port_name):
+def get_response(port_name):
     bdu = ControlScales(port_name)
-    print(bdu.get_formated_response().decode())
-
+    print(bdu.get_formatted_response())
 
 
 if len(sys.argv) > 1:
     port_name = sys.argv[1]
-    getResponse(port_name)
+    get_response(port_name)
 else:
     print("Please, select name of interface")
