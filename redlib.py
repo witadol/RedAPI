@@ -14,6 +14,11 @@ BDU_REQUEST = b'\x02B\x03'
 LAMP_REQUEST = b'\x50'
 LAMP_INIT = b'\x51'
 
+# Device's vendors
+FISCAL_VENDOR = 'Atmel Corp.'
+LAMP_VENDOR = 'Prolific Technology, Inc.'
+POS_VENDOR = 'Sagem'
+
 
 class SerialDevice():
 
@@ -103,7 +108,11 @@ class Discoverer:
         return "not found"
 
     @staticmethod
-    def get_available_devices():
+    def get_usb_devices():
+
+
+    @staticmethod
+    def get_serial_devices():
         devices = {}
 
         for port in Discoverer.get_available_ports():
@@ -130,4 +139,4 @@ class Discoverer:
 if __name__ == '__main__':
 
     print(Discoverer.get_available_ports())
-    print(Discoverer.get_available_devices())
+    print(Discoverer.get_serial_devices())

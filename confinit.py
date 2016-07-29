@@ -8,6 +8,6 @@ script_directory = os.path.dirname(__file__)
 path_to_file = os.path.join(script_directory, CONFIG_FILE)
 
 config = configparser.ConfigParser()
-config['PORTS'] = Discoverer.get_available_devices()
+config['PORTS'] = Discoverer.get_serial_devices()
 with open(path_to_file, 'w') as configfile:
     config.write(configfile)
