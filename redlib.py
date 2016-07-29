@@ -2,6 +2,7 @@
 import serial
 import pyudev
 import time
+import re
 from serial.tools import list_ports
 
 # Error messages
@@ -15,9 +16,9 @@ LAMP_REQUEST = b'\x50'
 LAMP_INIT = b'\x51'
 
 # Device's vendors
-FISCAL_VENDOR = 'Atmel Corp.'
-LAMP_VENDOR = 'Prolific Technology, Inc.'
-POS_VENDOR = 'Sagem'
+DEVICES_AND_VENDORS = {'Atmel Corp.': 'Fiscal',
+                       'Sagem': 'POS',
+                       'Prolific Technology, Inc.': 'Lamp'}
 
 
 class SerialDevice():
@@ -51,8 +52,8 @@ class RelayWrapper:
     ATTRIBUTE = u'ID_VENDOR'
     ATTRIBUTE_NAME = "Prolific_Technology_Inc."
 
-    def __init__(self):
-        device_port = self.find_device(RelayWrapper.ATTRIBUTE, RelayWrapper.ATTRIBUTE_NAME)
+    def __init__(self, device_port):
+        #device_port = self.find_device(RelayWrapper.ATTRIBUTE, RelayWrapper.ATTRIBUTE_NAME)
         self.relay = SerialDevice(device_port, LAMP_REQUEST)
         if self.relay.get_response_on_request() == b'\xab':
             print('first communication')
@@ -109,7 +110,29 @@ class Discoverer:
 
     @staticmethod
     def get_usb_devices():
+        devices = {}
+        pattern = re.compile('(ACM|USB)')
 
+        context = pyudev.Context()
+        for device in context.list_devices(subsystem='tty'):
+
+            dev_properties = dict(device)
+            port_name = dev_properties['DEVNAME']
+            if pattern.search(port_name):
+                vendor = dict(device)['ID_VENDOR_FROM_DATABASE']
+                try:
+                    devices[DEVICES_AND_VENDORS[vendor]] = port_name
+                except KeyError:
+                    pass
+
+        return devices
+
+    @staticmethod
+    def get_all_devices():
+        devices = {}
+        devices.update(Discoverer.get_serial_devices())
+        devices.update(Discoverer.get_usb_devices())
+        return  devices
 
     @staticmethod
     def get_serial_devices():
@@ -138,5 +161,7 @@ class Discoverer:
 
 if __name__ == '__main__':
 
-    print(Discoverer.get_available_ports())
-    print(Discoverer.get_serial_devices())
+    #print(Discoverer.get_available_ports())
+    #print(Discoverer.get_serial_devices())
+    #print(Discoverer.get_usb_devices())
+    print(Discoverer.get_all_devices())
